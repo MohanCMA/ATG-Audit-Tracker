@@ -6,38 +6,42 @@
 <title>ATG Audit Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:#F5F7FA;height:100vh;overflow:hidden}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:10px}
-select,input,textarea,button{font-family:'DM Sans',sans-serif}
+select,input,textarea,button,label{font-family:'DM Sans',sans-serif}
 textarea{resize:vertical}
 .app{display:flex;height:100vh;overflow:hidden}
-.sidebar{width:222px;background:#0F1C3F;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
-.sidebar-logo{padding:18px 16px 12px;border-bottom:1px solid rgba(255,255,255,0.08)}
-.sidebar-logo h1{color:#F0C040;font-size:14px;font-weight:800}
-.sidebar-clients{padding:10px 10px 6px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar{width:224px;background:#0F1C3F;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-logo{padding:18px 16px 12px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sb-logo h1{color:#F0C040;font-size:14px;font-weight:800}
+.sb-clients{padding:10px 10px 8px;border-bottom:1px solid rgba(255,255,255,0.08)}
 .slbl{color:rgba(255,255,255,0.3);font-size:10px;font-weight:700;letter-spacing:0.8px;margin-bottom:5px;padding:0 4px}
-.client-btn{display:flex;align-items:center;gap:7px;width:100%;padding:6px 9px;border-radius:7px;border:none;cursor:pointer;background:transparent;color:rgba(255,255,255,0.55);font-size:12px;font-weight:600;text-align:left;margin-bottom:1px;transition:all .15s}
-.client-btn.active{background:rgba(240,192,64,0.18);color:#F0C040}
+.c-btn{display:flex;align-items:center;gap:7px;width:100%;padding:6px 9px;border-radius:7px;border:none;cursor:pointer;background:transparent;color:rgba(255,255,255,0.55);font-size:12px;font-weight:600;text-align:left;margin-bottom:1px;transition:all .15s}
+.c-btn.active{background:rgba(240,192,64,0.18);color:#F0C040}
 .cav{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0}
-.add-c-btn{display:flex;align-items:center;gap:5px;width:100%;padding:5px 9px;border-radius:7px;border:1px dashed rgba(255,255,255,0.2);cursor:pointer;background:transparent;color:rgba(255,255,255,0.4);font-size:11px;font-weight:600;margin-top:4px}
-.nav-tabs{flex:1;padding:8px}
+.add-c{display:flex;align-items:center;gap:5px;width:100%;padding:5px 9px;border-radius:7px;border:1px dashed rgba(255,255,255,0.2);cursor:pointer;background:transparent;color:rgba(255,255,255,0.4);font-size:11px;font-weight:600;margin-top:4px}
+.nav-wrap{flex:1;padding:8px}
 .nav-btn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 11px;border-radius:8px;border:none;cursor:pointer;background:transparent;color:rgba(255,255,255,0.55);font-size:12px;font-weight:500;text-align:left;margin-bottom:2px;transition:all .15s}
 .nav-btn.active{background:rgba(240,192,64,0.15);color:#F0C040}
-.s-team{padding:10px 14px 16px;border-top:1px solid rgba(255,255,255,0.08)}
+.sb-team{padding:10px 14px 14px;border-top:1px solid rgba(255,255,255,0.08)}
 .trow{display:flex;align-items:center;gap:6px;margin-bottom:5px}
 .tnm{color:rgba(255,255,255,0.65);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.topbar{padding:11px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E8ECF4;background:#fff;flex-shrink:0}
+.topbar{padding:10px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E8ECF4;background:#fff;flex-shrink:0;gap:10px}
 .content{flex:1;overflow-y:auto;padding:18px 22px 32px}
 .card{background:#fff;border-radius:12px;border:1px solid #E8ECF4;padding:16px 18px;margin-bottom:12px}
-.btn{padding:7px 14px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:4px}
-.btn-p{background:#0F1C3F;color:#fff;padding:7px 16px}
-.btn-g{background:#F0C040;color:#0F1C3F;padding:7px 16px}
-.btn-ghost{background:transparent;color:#64748B;border:1px solid #E2E8F0;padding:6px 12px}
+.btn{padding:7px 14px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-p{background:#0F1C3F;color:#fff}
+.btn-g{background:#F0C040;color:#0F1C3F}
+.btn-green{background:#059669;color:#fff}
+.btn-ghost{background:transparent;color:#64748B;border:1px solid #E2E8F0}
+.btn-red{background:#FEE2E2;color:#991B1B}
 .btn-sm{background:#F1F5F9;color:#374151;padding:3px 9px;font-size:11px}
-.btn-red{background:#FEE2E2;color:#991B1B;padding:3px 9px;font-size:11px}
 .btn-def{background:#F1F5F9;color:#374151}
 .lbl{display:block;font-size:11px;color:#64748B;font-weight:500;margin-bottom:3px}
 .inp{padding:7px 10px;border-radius:7px;border:1px solid #E2E8F0;font-size:12px;color:#1E293B;outline:none;width:100%}
@@ -48,51 +52,56 @@ textarea{resize:vertical}
 .tbl td{padding:7px 10px;border-bottom:1px solid #F1F5F9;color:#1E293B;vertical-align:middle}
 .badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
-.stat-card{background:#fff;border-radius:12px;border:1px solid #E8ECF4;padding:13px 15px}
 .prog-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}
 .pbar{height:6px;border-radius:3px;background:#E8ECF4;overflow:hidden;margin-bottom:4px}
 .pfill{height:100%;border-radius:3px;transition:width .5s}
-.modal-overlay{position:fixed;inset:0;background:rgba(15,28,63,0.65);display:flex;align-items:center;justify-content:center;z-index:400}
-.modal-box{background:#fff;border-radius:14px;padding:22px;width:460px;max-width:96vw;box-shadow:0 20px 60px rgba(0,0,0,0.2);max-height:92vh;overflow-y:auto}
-.reply-bubble{background:#F0FDF4;border-radius:8px;padding:7px 11px;border-left:3px solid #22C55E;margin-bottom:6px}
-#welcome-screen{position:fixed;inset:0;background:#0F1C3F;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:300}
-#welcome-screen h1{color:#F0C040;font-size:30px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
-#welcome-screen p{color:rgba(255,255,255,0.5);font-size:14px;margin-bottom:36px}
+.overlay{position:fixed;inset:0;background:rgba(15,28,63,0.65);display:flex;align-items:center;justify-content:center;z-index:400}
+.mbox{background:#fff;border-radius:14px;padding:22px;width:480px;max-width:96vw;box-shadow:0 20px 60px rgba(0,0,0,0.2);max-height:92vh;overflow-y:auto}
+#ws{position:fixed;inset:0;background:#0F1C3F;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:300}
+#ws h1{color:#F0C040;font-size:30px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+#ws p{color:rgba(255,255,255,0.5);font-size:14px;margin-bottom:36px}
 .pill{padding:4px 12px;border-radius:20px;border:1px solid #E2E8F0;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#64748B}
 .pill.active{background:#0F1C3F;color:#fff;border-color:#0F1C3F}
-.chk{width:14px;height:14px;cursor:pointer;accent-color:#7C3AED}
+.chk{width:14px;height:14px;cursor:pointer;accent-color:#7C3AED;flex-shrink:0}
+#save-toast{position:fixed;bottom:20px;right:20px;background:#059669;color:#fff;padding:10px 18px;border-radius:9px;font-size:13px;font-weight:700;z-index:999;display:none;box-shadow:0 4px 20px rgba(0,0,0,0.2)}
+.sel-bar{background:#EEF2FF;border:1px solid #C7D2FE;border-radius:9px;padding:9px 14px;margin-bottom:9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.row-sel{background:#F5F3FF !important}
 </style>
 </head>
 <body>
 
-<div id="welcome-screen">
+<div id="save-toast">✓ All data saved</div>
+
+<!-- WELCOME -->
+<div id="ws">
   <h1>⚖️ ATG Audit Tracker</h1>
   <p>Multi-client audit management for CA firms</p>
   <button class="btn btn-g" style="font-size:14px;padding:12px 28px" onclick="showClientModal(null)">+ Create Your First Client</button>
 </div>
 
+<!-- APP -->
 <div class="app" id="app" style="display:none">
   <div class="sidebar">
-    <div class="sidebar-logo"><h1>⚖️ ATG Audit Tracker</h1></div>
-    <div class="sidebar-clients">
+    <div class="sb-logo"><h1>⚖️ ATG Audit Tracker</h1></div>
+    <div class="sb-clients">
       <div class="slbl">CLIENTS</div>
       <div id="client-list"></div>
-      <button class="add-c-btn" onclick="showClientModal(null)">+ Add Client</button>
+      <button class="add-c" onclick="showClientModal(null)">+ Add Client</button>
     </div>
-    <div class="nav-tabs" id="nav-tabs"></div>
-    <div class="s-team" id="s-team"></div>
+    <div class="nav-wrap" id="nav-wrap"></div>
+    <div class="sb-team" id="sb-team"></div>
   </div>
   <div class="main">
     <div class="topbar">
-      <div>
-        <div id="tb-title" style="font-size:15px;font-weight:800;color:#0F1C3F"></div>
+      <div style="min-width:0">
+        <div id="tb-title" style="font-size:15px;font-weight:800;color:#0F1C3F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
         <div id="tb-sub" style="font-size:11px;color:#94A3B8;margin-top:1px"></div>
       </div>
-      <div style="display:flex;align-items:center;gap:7px">
-        <span id="save-ind" style="font-size:11px;color:#22C55E;font-weight:600;display:none">✓ Saved</span>
-        <button class="btn btn-ghost" onclick="exportXLSX()" title="Export full client data to Excel">⬇ Export</button>
-        <label class="btn btn-ghost" style="cursor:pointer" title="Restore from Excel backup">⬆ Restore<input type="file" id="restore-file" accept=".xlsx" style="display:none" onchange="restoreXLSX(this)"/></label>
-        <button class="btn btn-ghost" onclick="showClientModal(activeClientId)">⚙ Edit Client</button>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <button class="btn btn-green" onclick="saveNow()">💾 Save</button>
+        <button class="btn btn-ghost" onclick="exportXLSX()">⬇ Export</button>
+        <label class="btn btn-ghost" style="cursor:pointer">⬆ Restore<input type="file" id="restore-file" accept=".xlsx" style="display:none" onchange="restoreXLSX(this)"/></label>
+        <button class="btn btn-ghost" onclick="showClientModal(activeClientId)">⚙ Edit / Delete Client</button>
       </div>
     </div>
     <div class="content" id="main-content"></div>
@@ -100,8 +109,8 @@ textarea{resize:vertical}
 </div>
 
 <!-- CLIENT MODAL -->
-<div class="modal-overlay" id="client-modal" style="display:none">
-  <div class="modal-box">
+<div class="overlay" id="client-modal" style="display:none">
+  <div class="mbox">
     <div style="font-weight:800;font-size:16px;color:#0F1C3F;margin-bottom:16px" id="modal-title">Add New Client</div>
     <input type="hidden" id="m-id"/>
     <label class="lbl">Company Name *</label>
@@ -115,58 +124,359 @@ textarea{resize:vertical}
       <input class="inp" id="m-newmember" placeholder="Enter name, press Add" onkeydown="if(event.key==='Enter')addMember()"/>
       <button class="btn btn-g" onclick="addMember()">Add</button>
     </div>
-    <div id="m-tags" style="display:flex;flex-wrap:wrap;gap:5px;min-height:26px;margin-bottom:16px"></div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn btn-def" onclick="closeClientModal()">Cancel</button>
-      <button class="btn btn-p" onclick="saveClient()">Save</button>
+    <div id="m-tags" style="display:flex;flex-wrap:wrap;gap:5px;min-height:26px;margin-bottom:18px"></div>
+    <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
+      <div id="m-del-wrap"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-def" onclick="closeClientModal()">Cancel</button>
+        <button class="btn btn-p" onclick="saveClient()">Save Client</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- CLOUD SYNC MODAL -->
+<div class="overlay" id="cloud-modal" style="display:none">
+  <div class="mbox" style="width:560px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div style="font-weight:800;font-size:16px;color:#0F1C3F">☁️ Cloud Sync Setup</div>
+      <button onclick="closeCloudModal()" style="background:none;border:none;cursor:pointer;color:#94A3B8;font-size:18px">✕</button>
+    </div>
+
+    <!-- Status bar -->
+    <div id="cloud-status-bar" style="padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;background:#F0FDF4;color:#166534;border:1px solid #BBF7D0">
+      <span class="sync-dot sync-off" id="modal-sync-dot"></span>
+      <span id="modal-sync-text">Not connected — local mode only</span>
+    </div>
+
+    <!-- CONNECTED PANEL -->
+    <div id="cloud-connected-panel" style="display:none">
+      <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-weight:700;font-size:13px;color:#166534;margin-bottom:6px">✅ Cloud Sync Active</div>
+        <div style="font-size:12px;color:#374151;line-height:1.7">
+          Your data is now live on Firebase. Any change you make syncs to all team members within seconds.<br/>
+          <strong>Your team members do NOT need to register or configure anything.</strong>
+        </div>
+      </div>
+
+      <div style="background:#EEF2FF;border:1px solid #C7D2FE;border-radius:10px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-weight:700;font-size:13px;color:#4338CA;margin-bottom:8px">📤 Share with Your Team — One Click</div>
+        <div style="font-size:12px;color:#374151;margin-bottom:12px;line-height:1.6">
+          Click below to download a <strong>Team Version</strong> of this HTML file with the cloud config pre-built in.<br/>
+          Upload it to Google Drive / SharePoint. Your team just opens it — auto-synced, no setup needed.
+        </div>
+        <button id="dl-team-btn" class="btn btn-p" style="width:100%;padding:10px" onclick="downloadTeamVersion()">
+          📥 Download Team File (Share This With Your Team)
+        </button>
+      </div>
+
+      <button class="btn btn-red" onclick="disconnectCloud()">🔌 Disconnect Cloud Sync (this device only)</button>
+      <div style="font-size:11px;color:#94A3B8;margin-top:6px">Disconnecting only removes the connection from this device. Data and other team members are not affected.</div>
+    </div>
+
+    <!-- SETUP PANEL (admin only) -->
+    <div id="cloud-setup-panel">
+      <div style="background:#FEF9C3;border:1px solid #FDE68A;border-radius:9px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#854D0E;line-height:1.6">
+        <strong>Only you (the admin) need to do this setup — 5 minutes, free forever.</strong><br/>
+        Your team members will receive a ready-to-use file with no setup required.
+      </div>
+
+      <div class="cloud-step" style="display:flex;align-items:flex-start;gap:0;margin-bottom:6px">
+        <span class="cloud-step-num">1</span>
+        <div><strong>Go to Firebase Console</strong><br/>
+        <a href="https://console.firebase.google.com" target="_blank" style="color:#7C3AED;font-size:12px">console.firebase.google.com</a> → Sign in → <strong>Create a project</strong> → Name it "ATG Audit" → Disable Analytics → Create.</div>
+      </div>
+      <div class="cloud-step" style="display:flex;align-items:flex-start;gap:0;margin-bottom:6px">
+        <span class="cloud-step-num">2</span>
+        <div><strong>Add Web App &amp; copy config</strong><br/>Click <strong>&lt;/&gt;</strong> Web icon → Register app → Copy the <code style="background:#F1F5F9;padding:1px 4px;border-radius:3px;font-size:11px">firebaseConfig</code> object shown.</div>
+      </div>
+      <div class="cloud-step" style="display:flex;align-items:flex-start;gap:0;margin-bottom:6px">
+        <span class="cloud-step-num">3</span>
+        <div><strong>Create Realtime Database</strong><br/>Left menu → Build → <strong>Realtime Database</strong> → Create database → Region: <strong>asia-south1</strong> → <strong>Start in test mode</strong> → Enable.</div>
+      </div>
+      <div class="cloud-step" style="display:flex;align-items:flex-start;gap:0;margin-bottom:12px">
+        <span class="cloud-step-num">4</span>
+        <div><strong>Paste config below and connect</strong><br/>Paste the firebaseConfig JSON here → Connect → then download and share the Team File.</div>
+      </div>
+
+      <label class="lbl">Firebase Config (paste the JSON object from step 2)</label>
+      <textarea id="fb-config-input" class="inp" style="height:100px;font-family:monospace;font-size:11px;margin-bottom:8px" placeholder='{
+  "apiKey": "AIza...",
+  "authDomain": "your-project.firebaseapp.com",
+  "databaseURL": "https://your-project-default-rtdb.firebaseio.com",
+  "projectId": "your-project",
+  "storageBucket": "your-project.appspot.com",
+  "messagingSenderId": "123456789",
+  "appId": "1:123:web:abc"
+}'></textarea>
+      <div id="fb-error" style="color:#EF4444;font-size:12px;margin-bottom:8px;display:none"></div>
+      <button class="btn btn-p" style="width:100%;padding:10px" onclick="connectCloud()">☁️ Connect to Firebase</button>
     </div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════════
-let clients = JSON.parse(localStorage.getItem('atg_c')||'[]');
+// ══════════════════════════════════════════════════════
+// Embedded Firebase config (auto-set when admin downloads Team Version)
+const _EMBEDDED_FB_CFG = null; // TEAM_CONFIG_PLACEHOLDER
+
+let clients  = JSON.parse(localStorage.getItem('atg_c')||'[]');
 let allData  = JSON.parse(localStorage.getItem('atg_d')||'{}');
 let activeClientId = null;
 let activeTab = 'dashboard';
 let modalTeam = [];
-
-// Ledger tracker state
+// Ledger tracker
 let ltTbMode=false, ltTbAccounts=[], ltTbSelected=[], ltTbAuditType='Statutory Audit';
-let ltShowAdd=false, ltFilters={type:'All',status:'All',member:'All'};
-let ltSelected=[]; // for bulk delete
+let ltShowAdd=false;
+let ltFilters={type:'All',status:'All',member:'All'};
+let ltSelected=[];  // array of selected ledger IDs
+// Remarks
+let rmFilter='All';
 
-// Query / Remarks state
-let qFilter='All', rmFilter='All';
+const AUDIT_TYPES = ["Statutory Audit","Tax Audit (3CD)","GST Audit","TP Audit"];
+const STATUSES    = ["Not Started","WIP","Done","Reviewed"];
+const MR_STATUSES = ["Pending","Approved","Needs Revision"];
+const SS  = {"Not Started":{bg:"#F1F5F9",c:"#64748B"},"WIP":{bg:"#FEF9C3",c:"#854D0E"},"Done":{bg:"#DCFCE7",c:"#166534"},"Reviewed":{bg:"#DBEAFE",c:"#1E3A8A"}};
+const MRS = {"Pending":{bg:"#F1F5F9",c:"#64748B"},"Approved":{bg:"#DCFCE7",c:"#166534"},"Needs Revision":{bg:"#FEE2E2",c:"#991B1B"}};
+const ATC = {"Statutory Audit":"#7C3AED","Tax Audit (3CD)":"#0891B2","GST Audit":"#059669","TP Audit":"#D97706"};
+const AVC = ["#F0C040","#7C3AED","#0891B2","#059669","#D97706","#EF4444"];
 
-const AUDIT_TYPES=["Statutory Audit","Tax Audit (3CD)","GST Audit","TP Audit"];
-const STATUSES=["Not Started","WIP","Done","Reviewed"];
-const MR_STATUSES=["Pending","Approved","Needs Revision"];
-const SS={"Not Started":{bg:"#F1F5F9",c:"#64748B"},"WIP":{bg:"#FEF9C3",c:"#854D0E"},"Done":{bg:"#DCFCE7",c:"#166534"},"Reviewed":{bg:"#DBEAFE",c:"#1E3A8A"}};
-const MRS={"Pending":{bg:"#F1F5F9",c:"#64748B"},"Approved":{bg:"#DCFCE7",c:"#166534"},"Needs Revision":{bg:"#FEE2E2",c:"#991B1B"}};
-const ATC={"Statutory Audit":"#7C3AED","Tax Audit (3CD)":"#0891B2","GST Audit":"#059669","TP Audit":"#D97706"};
-const AVC=["#F0C040","#7C3AED","#0891B2","#059669","#D97706","#EF4444"];
+const uid      = ()=>Math.random().toString(36).slice(2,9);
+const todayStr = ()=>new Date().toLocaleDateString('en-IN');
+const esc      = s=>{if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')};
+const getCdata = ()=>allData[activeClientId]||{ledgers:[],remarks:[]};
+const getClient= ()=>clients.find(c=>c.id===activeClientId);
 
-function uid(){return Math.random().toString(36).slice(2,9)}
-function todayStr(){return new Date().toLocaleDateString('en-IN')}
-function esc(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function getCdata(){return allData[activeClientId]||{ledgers:[],remarks:[]}}
-function getClient(){return clients.find(c=>c.id===activeClientId)}
-function save(){
-  localStorage.setItem('atg_c',JSON.stringify(clients));
-  localStorage.setItem('atg_d',JSON.stringify(allData));
-  const el=document.getElementById('save-ind');
-  if(el){el.style.display='inline';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',2200);}
+// ══════════════════════════════════════════════════════
+// FIREBASE CLOUD SYNC
+// ══════════════════════════════════════════════════════
+let _fbDb = null;
+let _fbConnected = false;
+let _fbSyncTimer = null;
+let _devId = localStorage.getItem('atg_devid') || (()=>{const id='dev_'+Math.random().toString(36).slice(2,9);localStorage.setItem('atg_devid',id);return id;})();
+let _lastWriteTs = 0;
+let _ignoreNextRemote = false;
+
+function setSyncStatus(state, text){
+  const dot=document.getElementById('sync-dot');
+  const lbl=document.getElementById('sync-label');
+  const mdot=document.getElementById('modal-sync-dot');
+  const mtxt=document.getElementById('modal-sync-text');
+  const bar=document.getElementById('cloud-status-bar');
+  const dotClass={'ok':'sync-ok','syncing':'sync-syncing','err':'sync-err','off':'sync-off'}[state]||'sync-off';
+  [dot,mdot].forEach(el=>{if(el){el.className='sync-dot '+dotClass;}});
+  if(lbl) lbl.textContent=text;
+  if(mtxt) mtxt.textContent=text;
+  if(bar){
+    const colors={'ok':['#F0FDF4','#166534','#BBF7D0'],'syncing':['#FEFCE8','#854D0E','#FDE68A'],'err':['#FEF2F2','#991B1B','#FECACA'],'off':['#F8F9FC','#64748B','#E2E8F0']};
+    const [bg,col,brd]=colors[state]||colors['off'];
+    bar.style.background=bg; bar.style.color=col; bar.style.borderColor=brd;
+  }
 }
 
-// ═══════════════════════════════════════════════
+function initFirebase(config){
+  try{
+    if(firebase.apps.length) firebase.apps.forEach(a=>a.delete());
+    firebase.initializeApp(config);
+    _fbDb=firebase.database();
+    // Test connection
+    _fbDb.ref('.info/connected').on('value',snap=>{
+      _fbConnected=!!snap.val();
+      if(_fbConnected){
+        setSyncStatus('ok','☁ Synced');
+        startCloudListener();
+      } else {
+        setSyncStatus('syncing','☁ Connecting…');
+      }
+    });
+    return true;
+  }catch(e){
+    console.error('Firebase init error',e);
+    _fbDb=null; _fbConnected=false;
+    setSyncStatus('err','Cloud Error: '+e.message);
+    return false;
+  }
+}
+
+function startCloudListener(){
+  if(!_fbDb)return;
+  _fbDb.ref('atg_tracker').on('value', snap=>{
+    const remote=snap.val();
+    if(!remote) return; // nothing in DB yet
+    if(_ignoreNextRemote){_ignoreNextRemote=false;return;}
+    // Skip if this is our own recent write (within 3s)
+    if(remote.by===_devId && Date.now()-remote.ts<3000) return;
+    // Apply remote data
+    clients=remote.clients||[];
+    allData=remote.data||{};
+    localStorage.setItem('atg_c',JSON.stringify(clients));
+    localStorage.setItem('atg_d',JSON.stringify(allData));
+    setSyncStatus('ok','☁ Synced · '+new Date(remote.ts).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}));
+    // Refresh UI
+    if(activeClientId && clients.find(c=>c.id===activeClientId)){
+      render();
+    } else if(clients.length){
+      activeClientId=clients[0].id;
+      document.getElementById('ws').style.display='none';
+      document.getElementById('app').style.display='flex';
+      render();
+    }
+  }, err=>{
+    setSyncStatus('err','Sync error: '+err.message);
+  });
+}
+
+function pushToCloud(){
+  if(!_fbDb||!_fbConnected)return;
+  _ignoreNextRemote=true;
+  _lastWriteTs=Date.now();
+  _fbDb.ref('atg_tracker').set({
+    clients, data:allData, ts:_lastWriteTs, by:_devId
+  }).then(()=>{
+    setSyncStatus('ok','☁ Synced · '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}));
+  }).catch(e=>{
+    setSyncStatus('err','Write failed: '+e.message);
+  });
+}
+
+function showCloudModal(){
+  const panel_c=document.getElementById('cloud-connected-panel');
+  const panel_s=document.getElementById('cloud-setup-panel');
+  if(_fbConnected){
+    panel_c.style.display='block'; panel_s.style.display='none';
+    setSyncStatus('ok','☁ Synced');
+  } else {
+    panel_c.style.display='none'; panel_s.style.display='block';
+    setSyncStatus('off','Not connected — local mode only');
+    // Pre-fill if config saved
+    const saved=localStorage.getItem('atg_fb_cfg');
+    if(saved) document.getElementById('fb-config-input').value=saved;
+  }
+  document.getElementById('cloud-modal').style.display='flex';
+}
+function closeCloudModal(){document.getElementById('cloud-modal').style.display='none';}
+
+function connectCloud(){
+  const raw=document.getElementById('fb-config-input').value.trim();
+  const errEl=document.getElementById('fb-error');
+  errEl.style.display='none';
+  let config;
+  try{
+    // Accept either raw object or JSON
+    const cleaned=raw.replace(/^const\s+\w+\s*=\s*/,'').replace(/;?\s*$/,'');
+    config=JSON.parse(cleaned);
+  }catch(e){
+    errEl.textContent='Invalid JSON. Please paste the firebaseConfig object exactly as shown in Firebase console.';
+    errEl.style.display='block'; return;
+  }
+  if(!config.databaseURL){
+    errEl.textContent='Missing databaseURL. Make sure you created a Realtime Database and the config includes the databaseURL field.';
+    errEl.style.display='block'; return;
+  }
+  setSyncStatus('syncing','Connecting…');
+  const ok=initFirebase(config);
+  if(ok){
+    localStorage.setItem('atg_fb_cfg',JSON.stringify(config));
+    // Push existing local data to cloud on first connect
+    setTimeout(()=>{
+      if(_fbConnected){
+        pushToCloud();
+        document.getElementById('cloud-connected-panel').style.display='block';
+        document.getElementById('cloud-setup-panel').style.display='none';
+      }
+    },2000);
+  } else {
+    errEl.textContent='Connection failed. Check the config and try again.';
+    errEl.style.display='block';
+  }
+}
+
+async function downloadTeamVersion(){
+  const cfg=localStorage.getItem('atg_fb_cfg');
+  if(!cfg){alert('Please connect to Firebase first.');return;}
+  const cfgJson=cfg;
+  const btn=document.getElementById('dl-team-btn');
+  if(btn){btn.textContent='⏳ Preparing…';btn.disabled=true;}
+  try{
+    // Fetch this HTML file's own source
+    const resp=await fetch(location.href);
+    if(!resp.ok) throw new Error('fetch failed');
+    const html=await resp.text();
+    const teamHtml=html.replace(
+      'const _EMBEDDED_FB_CFG = null; // TEAM_CONFIG_PLACEHOLDER',
+      'const _EMBEDDED_FB_CFG = '+cfgJson+'; // TEAM_CONFIG_PLACEHOLDER'
+    );
+    if(teamHtml===html) throw new Error('placeholder not found');
+    const blob=new Blob([teamHtml],{type:'text/html'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='ATGAuditTracker_TEAM.html';
+    a.click();
+    if(btn){btn.textContent='✅ Downloaded!';setTimeout(()=>{btn.textContent='📥 Download Team File';btn.disabled=false;},2500);}
+  }catch(e){
+    // Fallback: show manual instructions
+    const cfg2=JSON.parse(cfgJson);
+    const snippet='const _EMBEDDED_FB_CFG = '+JSON.stringify(cfg2)+'; // TEAM_CONFIG_PLACEHOLDER';
+    prompt('Auto-download failed (common for local files). Copy this line and paste it into the HTML file replacing the line: const _EMBEDDED_FB_CFG = null;\n\nThen share the edited file with your team:', snippet);
+    if(btn){btn.textContent='📥 Download Team File';btn.disabled=false;}
+  }
+}
+
+function disconnectCloud(){
+  if(!confirm('Disconnect cloud sync from this device? Your local data is kept. Other team members will not be affected.'))return;
+  if(_fbDb) try{firebase.apps.forEach(a=>a.delete());}catch(e){}
+  _fbDb=null; _fbConnected=false;
+  localStorage.removeItem('atg_fb_cfg');
+  setSyncStatus('off','Local Only');
+  document.getElementById('cloud-connected-panel').style.display='none';
+  document.getElementById('cloud-setup-panel').style.display='block';
+  closeCloudModal();
+}
+
+// ── Auto-restore Firebase on page load ───────────────────────────────────
+function tryRestoreCloud(){
+  // Priority 1: config embedded in HTML (team members auto-connect)
+  if(_EMBEDDED_FB_CFG && _EMBEDDED_FB_CFG.databaseURL){
+    setSyncStatus('syncing','Connecting to cloud…');
+    localStorage.setItem('atg_fb_cfg', JSON.stringify(_EMBEDDED_FB_CFG));
+    initFirebase(_EMBEDDED_FB_CFG);
+    return;
+  }
+  // Priority 2: config saved in localStorage (admin device)
+  const saved=localStorage.getItem('atg_fb_cfg');
+  if(!saved)return;
+  try{
+    const config=JSON.parse(saved);
+    setSyncStatus('syncing','Connecting to cloud…');
+    initFirebase(config);
+  }catch(e){ localStorage.removeItem('atg_fb_cfg'); }
+}
+
+function saveNow(){
+  // Always save locally first
+  localStorage.setItem('atg_c',JSON.stringify(clients));
+  localStorage.setItem('atg_d',JSON.stringify(allData));
+  // Debounced cloud push
+  clearTimeout(_fbSyncTimer);
+  _fbSyncTimer=setTimeout(pushToCloud, 400);
+  // Show local save toast
+  const t=document.getElementById('save-toast');
+  t.style.display='block';
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>t.style.display='none',2200);
+}
+const autoSave=saveNow;
+
+// ══════════════════════════════════════════════════════
 // BOOT
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 window.onload=function(){
+  tryRestoreCloud(); // connect cloud if previously configured
   if(clients.length){
-    document.getElementById('welcome-screen').style.display='none';
+    document.getElementById('ws').style.display='none';
     document.getElementById('app').style.display='flex';
     activeClientId=clients[0].id;
     render();
@@ -174,33 +484,33 @@ window.onload=function(){
 };
 function render(){renderSidebar();renderTopbar();renderContent();}
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // SIDEBAR
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 function renderSidebar(){
   const TABS=[{id:'dashboard',icon:'📊',label:'Dashboard'},{id:'ledgers',icon:'📁',label:'Ledger Tracker'},{id:'remarks',icon:'📝',label:'Remarks'}];
   let cl='';
   clients.forEach(c=>{
-    const isA=c.id===activeClientId;
-    cl+=`<button class="client-btn ${isA?'active':''}" onclick="switchClient('${c.id}')">
-      <span class="cav" style="background:${isA?'#F0C040':'rgba(255,255,255,0.15)'};color:${isA?'#0F1C3F':'rgba(255,255,255,0.5)'}">${c.name[0]}</span>
-      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</span>
+    const a=c.id===activeClientId;
+    cl+=`<button class="c-btn ${a?'active':''}" onclick="switchClient('${c.id}')">
+      <span class="cav" style="background:${a?'#F0C040':'rgba(255,255,255,0.15)'};color:${a?'#0F1C3F':'rgba(255,255,255,0.5)'}">${c.name[0]}</span>
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${esc(c.name)}</span>
     </button>`;
   });
   document.getElementById('client-list').innerHTML=cl;
   let nt='';
   TABS.forEach(t=>{nt+=`<button class="nav-btn ${activeTab===t.id?'active':''}" onclick="switchTab('${t.id}')">${t.icon} ${t.label}</button>`;});
-  document.getElementById('nav-tabs').innerHTML=nt;
+  document.getElementById('nav-wrap').innerHTML=nt;
   const cl2=getClient();
-  if(!cl2){document.getElementById('s-team').innerHTML='';return;}
+  if(!cl2){document.getElementById('sb-team').innerHTML='';return;}
   const members=[cl2.manager,...(cl2.team||[])].filter(Boolean);
-  if(!members.length){document.getElementById('s-team').innerHTML='';return;}
-  let th=`<div class="slbl">TEAM</div>`;
+  if(!members.length){document.getElementById('sb-team').innerHTML='';return;}
+  let th=`<div class="slbl" style="margin-bottom:7px">TEAM</div>`;
   members.forEach((m,i)=>{
     const isMgr=m===cl2.manager;
     th+=`<div class="trow"><span class="cav" style="background:${isMgr?'#F0C040':AVC[i%AVC.length]};color:${isMgr?'#0F1C3F':'#fff'}">${isMgr?'★':m[0]}</span><span class="tnm">${esc(m)}${isMgr?' <span style="color:rgba(255,255,255,0.3);font-size:9px">(Mgr)</span>':''}</span></div>`;
   });
-  document.getElementById('s-team').innerHTML=th;
+  document.getElementById('sb-team').innerHTML=th;
 }
 function renderTopbar(){
   const cl=getClient(); if(!cl)return;
@@ -210,21 +520,22 @@ function renderTopbar(){
 function switchClient(id){activeClientId=id;activeTab='dashboard';ltTbMode=false;ltSelected=[];render();}
 function switchTab(t){activeTab=t;render();}
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // CONTENT ROUTER
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 function renderContent(){
   const mc=document.getElementById('main-content');
-  if(activeTab==='dashboard') mc.innerHTML=renderDashboard();
+  if(activeTab==='dashboard')    mc.innerHTML=renderDashboard();
   else if(activeTab==='ledgers') mc.innerHTML=renderLedgers();
   else if(activeTab==='remarks') mc.innerHTML=renderRemarks();
 }
 
-// ═══════════════════════════════════════════════
-// CLIENT MODAL
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// CLIENT MODAL — add / edit / delete
+// ══════════════════════════════════════════════════════
 function showClientModal(id){
   modalTeam=[];
+  const dw=document.getElementById('m-del-wrap');
   if(id){
     const c=clients.find(x=>x.id===id);
     document.getElementById('modal-title').textContent='Edit Client';
@@ -233,6 +544,7 @@ function showClientModal(id){
     document.getElementById('m-fy').value=c.fy;
     document.getElementById('m-manager').value=c.manager||'';
     modalTeam=[...(c.team||[])];
+    dw.innerHTML=`<button class="btn btn-red" onclick="deleteClient('${c.id}')">🗑 Delete Client</button>`;
   } else {
     document.getElementById('modal-title').textContent='Add New Client';
     document.getElementById('m-id').value='';
@@ -240,6 +552,7 @@ function showClientModal(id){
     document.getElementById('m-fy').value='2024-25';
     document.getElementById('m-manager').value='';
     modalTeam=[];
+    dw.innerHTML='';
   }
   renderMTags();
   document.getElementById('client-modal').style.display='flex';
@@ -252,68 +565,85 @@ function renderMTags(){
 function addMember(){const v=document.getElementById('m-newmember').value.trim();if(v&&!modalTeam.includes(v)){modalTeam.push(v);document.getElementById('m-newmember').value='';renderMTags();}}
 function removeMember(m){modalTeam=modalTeam.filter(t=>t!==m);renderMTags();}
 function closeClientModal(){document.getElementById('client-modal').style.display='none';}
+
 function saveClient(){
   const name=document.getElementById('m-name').value.trim();
   if(!name)return alert('Company name is required.');
   const id=document.getElementById('m-id').value||uid();
+  const isEdit=!!document.getElementById('m-id').value;
   const fy=document.getElementById('m-fy').value.trim()||'2024-25';
   const manager=document.getElementById('m-manager').value.trim();
-  if(clients.find(c=>c.id===id)) clients=clients.map(c=>c.id===id?{...c,name,fy,manager,team:modalTeam}:c);
+  // ── Duplicate name check (only for new clients) ──
+  if(!isEdit){
+    const dupName=clients.find(c=>c.name.trim().toLowerCase()===name.toLowerCase());
+    if(dupName){
+      alert(`⚠️ A client named "${dupName.name}" already exists.\n\nPlease use a different name or edit the existing client.`);
+      return;
+    }
+  }
+  if(isEdit) clients=clients.map(c=>c.id===id?{...c,name,fy,manager,team:modalTeam}:c);
   else clients.push({id,name,fy,manager,team:modalTeam});
-  save();
   if(!allData[id]) allData[id]={ledgers:[],remarks:[]};
+  autoSave();
   activeClientId=id;
-  document.getElementById('welcome-screen').style.display='none';
+  document.getElementById('ws').style.display='none';
   document.getElementById('app').style.display='flex';
-  closeClientModal();render();
+  closeClientModal(); render();
 }
 
-// ═══════════════════════════════════════════════
+function deleteClient(id){
+  const cl=clients.find(c=>c.id===id); if(!cl)return;
+  if(!confirm(`Permanently delete "${cl.name}" and ALL its data?\n\nThis cannot be undone.`))return;
+  clients=clients.filter(c=>c.id!==id);
+  delete allData[id];
+  autoSave();
+  closeClientModal();
+  if(clients.length){
+    activeClientId=clients[0].id; activeTab='dashboard';
+    document.getElementById('ws').style.display='none';
+    document.getElementById('app').style.display='flex';
+    render();
+  } else {
+    document.getElementById('ws').style.display='flex';
+    document.getElementById('app').style.display='none';
+  }
+}
+
+// ══════════════════════════════════════════════════════
 // DASHBOARD
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 function renderDashboard(){
   const cl=getClient();
   const {ledgers=[],remarks=[]}=getCdata();
   const allMembers=[cl.manager,...(cl.team||[])].filter(Boolean);
   const totalDone=ledgers.filter(l=>l.status==='Done'||l.status==='Reviewed').length;
-  const totalWIP=ledgers.filter(l=>l.status==='WIP').length;
-  const openR=remarks.filter(r=>r.resolution==='Not Resolved').length;
-  const overdue=ledgers.filter(l=>l.dueDate&&l.status!=='Done'&&l.status!=='Reviewed'&&new Date(l.dueDate)<new Date()).length;
-
-  let html=`<div class="stats-grid">
-    ${[{l:'Total Ledgers',v:ledgers.length,c:'#7C3AED'},{l:'Completed',v:totalDone,c:'#22C55E'},{l:'In Progress',v:totalWIP,c:'#EAB308'},{l:'Pending Remarks',v:openR,c:'#D97706'}].map((s,i)=>i<4?`
-    <div class="stat-card" style="border-left:4px solid ${s.c}"><div style="font-size:22px;font-weight:800;color:#0F1C3F;line-height:1">${s.v}</div><div style="font-size:11px;color:#64748B;margin-top:3px;font-weight:500">${s.l}</div></div>`:'').join('')}
-  </div>
-  <div style="background:#fff;border-radius:12px;border:1px solid #E8ECF4;padding:13px 16px;margin-bottom:12px;display:flex;gap:20px;flex-wrap:wrap">
+  const totalWIP =ledgers.filter(l=>l.status==='WIP').length;
+  const openR    =remarks.filter(r=>r.resolution==='Not Resolved').length;
+  const overdue  =ledgers.filter(l=>l.dueDate&&l.status!=='Done'&&l.status!=='Reviewed'&&new Date(l.dueDate)<new Date()).length;
+  let html='';
+  if(overdue>0) html+=`<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:9px;padding:9px 14px;margin-bottom:12px;font-size:12px;color:#991B1B;font-weight:600">⚠️ ${overdue} ledger${overdue>1?'s are':' is'} past due date — please review.</div>`;
+  html+=`<div class="stats-grid">
     ${[{l:'Total Ledgers',v:ledgers.length,c:'#7C3AED'},{l:'Completed',v:totalDone,c:'#22C55E'},{l:'In Progress',v:totalWIP,c:'#EAB308'},{l:'Pending Remarks',v:openR,c:'#D97706'}].map(s=>`
-    <div style="text-align:center;flex:1;min-width:80px"><div style="font-size:20px;font-weight:800;color:${s.c}">${s.v}</div><div style="font-size:10px;color:#64748B;font-weight:500">${s.l}</div></div>`).join('')}
+    <div style="background:#fff;border-radius:12px;border:1px solid #E8ECF4;padding:13px 15px;border-left:4px solid ${s.c}">
+      <div style="font-size:22px;font-weight:800;color:#0F1C3F;line-height:1">${s.v}</div>
+      <div style="font-size:11px;color:#64748B;margin-top:3px;font-weight:500">${s.l}</div>
+    </div>`).join('')}
   </div>`;
-
-  // Remove duplicate stats grid - replace with clean version
-  html=`${overdue>0?`<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:9px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:#991B1B;font-weight:600">⚠️ ${overdue} ledger${overdue>1?'s are':' is'} past due date.</div>`:''}`;
-
-  // Stat cards
-  html+=`<div class="stats-grid" style="grid-template-columns:repeat(5,1fr)">
-    ${[{l:'Total Ledgers',v:ledgers.length,c:'#7C3AED'},{l:'Completed',v:totalDone,c:'#22C55E'},{l:'In Progress',v:totalWIP,c:'#EAB308'},{l:'Pending Remarks',v:openR,c:'#D97706'}].map(s=>`
-    <div class="stat-card" style="border-left:4px solid ${s.c}"><div style="font-size:20px;font-weight:800;color:#0F1C3F;line-height:1">${s.v}</div><div style="font-size:11px;color:#64748B;margin-top:3px;font-weight:500">${s.l}</div></div>`).join('')}
-  </div>`;
-
-  // Progress by type
   html+=`<div class="prog-grid">`;
   AUDIT_TYPES.forEach(at=>{
     const grp=ledgers.filter(l=>l.auditType===at);
     const done=grp.filter(l=>l.status==='Done'||l.status==='Reviewed').length;
     const pct=grp.length?Math.round(done/grp.length*100):0;
-    html+=`<div class="card" style="margin-bottom:0"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-weight:700;font-size:12px;color:${ATC[at]}">${at}</span><span style="font-size:11px;color:#64748B">${done}/${grp.length}</span></div>
-    <div class="pbar"><div class="pfill" style="width:${pct}%;background:${ATC[at]}"></div></div>
-    <div style="font-size:11px;color:#94A3B8">${pct}% complete</div></div>`;
+    html+=`<div class="card" style="margin-bottom:0"><div style="display:flex;justify-content:space-between;margin-bottom:7px">
+      <span style="font-weight:700;font-size:12px;color:${ATC[at]}">${at}</span>
+      <span style="font-size:11px;color:#64748B">${done}/${grp.length}</span></div>
+      <div class="pbar"><div class="pfill" style="width:${pct}%;background:${ATC[at]}"></div></div>
+      <div style="font-size:11px;color:#94A3B8">${pct}% complete</div></div>`;
   });
   html+=`</div>`;
-
-  // Team workload
   html+=`<div class="card"><div style="font-weight:800;font-size:13px;color:#0F1C3F;margin-bottom:11px">Team Workload</div>`;
   if(!allMembers.length){
-    html+=`<div style="color:#94A3B8;font-size:13px;text-align:center;padding:14px">No team added. Click "Edit Client" to add team members.</div>`;
+    html+=`<div style="color:#94A3B8;font-size:13px;text-align:center;padding:14px">No team added — click "⚙ Edit / Delete Client" to add team members.</div>`;
   } else {
     allMembers.forEach((m,i)=>{
       const isMgr=m===cl.manager;
@@ -328,10 +658,7 @@ function renderDashboard(){
         </div>`;
       if(pending.length){
         html+=`<div style="padding:7px 13px"><div style="font-size:10px;font-weight:700;color:#94A3B8;margin-bottom:4px">PENDING</div><div style="display:flex;flex-wrap:wrap;gap:4px">`;
-        pending.forEach(l=>{
-          const od=l.dueDate&&new Date(l.dueDate)<new Date();
-          html+=`<span style="padding:2px 8px;border-radius:20px;font-size:11px;background:${SS[l.status]?.bg};color:${SS[l.status]?.c};font-weight:600">${esc(l.name)}${l.dueDate?` · ${l.dueDate}${od?' ⚠️':''}`:''}</span>`;
-        });
+        pending.forEach(l=>{const od=l.dueDate&&new Date(l.dueDate)<new Date();html+=`<span style="padding:2px 8px;border-radius:20px;font-size:11px;background:${SS[l.status]?.bg};color:${SS[l.status]?.c};font-weight:600">${esc(l.name)}${l.dueDate?` · ${l.dueDate}${od?' ⚠️':''}`:''}</span>`;});
         html+=`</div></div>`;
       }
       if(done.length){
@@ -347,14 +674,13 @@ function renderDashboard(){
   return html;
 }
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 // LEDGER TRACKER
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 function renderLedgers(){
   const {ledgers=[]}=getCdata();
   const cl=getClient();
   const allMembers=[cl.manager,...(cl.team||[])].filter(Boolean);
-
   if(ltTbMode) return renderTBSelector();
 
   const filtered=ledgers.filter(l=>{
@@ -363,113 +689,205 @@ function renderLedgers(){
     if(ltFilters.member!=='All'&&l.assignedTo!==ltFilters.member)return false;
     return true;
   });
+  const filteredIds=filtered.map(l=>l.id);
+  window._fids=filteredIds; // store globally so doSelectAll always has current IDs
+  const selInView=filteredIds.filter(id=>ltSelected.includes(id)).length;
+  const allSelInView=filteredIds.length>0&&selInView===filteredIds.length;
 
-  const allFilteredIds=filtered.map(l=>l.id);
-  const allChecked=allFilteredIds.length>0&&allFilteredIds.every(id=>ltSelected.includes(id));
-
-  let html=`<div style="display:flex;gap:7px;margin-bottom:11px;flex-wrap:wrap;align-items:center">
-    <select class="sel" onchange="ltFilters.type=this.value;renderContent()">${['All',...AUDIT_TYPES].map(o=>`<option ${ltFilters.type===o?'selected':''}>${o}</option>`).join('')}</select>
-    <select class="sel" onchange="ltFilters.status=this.value;renderContent()">${['All',...STATUSES].map(o=>`<option ${ltFilters.status===o?'selected':''}>${o}</option>`).join('')}</select>
-    <select class="sel" onchange="ltFilters.member=this.value;renderContent()">${['All',...allMembers].map(o=>`<option ${ltFilters.member===o?'selected':''}>${o}</option>`).join('')}</select>
-    ${ltSelected.length>0?`<button class="btn btn-red" onclick="deleteSelected()">🗑 Delete Selected (${ltSelected.length})</button>`:''}
-    <div style="margin-left:auto;display:flex;gap:7px">
+  // ── Toolbar ──
+  let html=`<div style="display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap;align-items:center">
+    <select class="sel" onchange="ltFilters.type=this.value;ltSelected=[];renderContent()">${['All',...AUDIT_TYPES].map(o=>`<option ${ltFilters.type===o?'selected':''}>${o}</option>`).join('')}</select>
+    <select class="sel" onchange="ltFilters.status=this.value;ltSelected=[];renderContent()">${['All',...STATUSES].map(o=>`<option ${ltFilters.status===o?'selected':''}>${o}</option>`).join('')}</select>
+    <select class="sel" onchange="ltFilters.member=this.value;ltSelected=[];renderContent()">${['All',...allMembers].map(o=>`<option ${ltFilters.member===o?'selected':''}>${o}</option>`).join('')}</select>
+    <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-def" style="font-size:11px;padding:5px 10px" onclick="downloadTemplate()" title="Download blank import template">📄 Template</button>
+      <label class="btn btn-def" style="cursor:pointer;font-size:11px;padding:5px 10px" title="Import ledgers from Excel">📥 Import Excel<input type="file" id="import-xl" accept=".xlsx,.xls" style="display:none" onchange="importLedgersXL(this)"/></label>
       <button class="btn btn-g" onclick="document.getElementById('tb-file').click()">📂 Upload TB</button>
       <input type="file" id="tb-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleTBFile(this)"/>
       <button class="btn btn-p" onclick="ltShowAdd=!ltShowAdd;renderContent()">+ Add Ledger</button>
     </div>
   </div>`;
 
+  // ── Add row ──
   if(ltShowAdd){
-    html+=`<div style="background:#FEFCE8;border:1px solid #FDE68A;border-radius:9px;padding:11px 13px;margin-bottom:11px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+    html+=`<div style="background:#FEFCE8;border:1px solid #FDE68A;border-radius:9px;padding:11px 13px;margin-bottom:9px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
       <div><label class="lbl">Audit Type</label><select class="sel" id="add-at">${AUDIT_TYPES.map(a=>`<option>${a}</option>`).join('')}</select></div>
-      <div style="flex:1"><label class="lbl">Ledger / Area Name</label><input class="inp" id="add-nm" placeholder="e.g. Advance Tax" onkeydown="if(event.key==='Enter')addLedgerManual()"/></div>
+      <div style="flex:1;min-width:160px"><label class="lbl">Ledger / Area Name</label><input class="inp" id="add-nm" placeholder="e.g. Advance Tax" onkeydown="if(event.key==='Enter')addLedgerManual()"/></div>
       <button class="btn btn-p" onclick="addLedgerManual()">Add</button>
       <button class="btn btn-def" onclick="ltShowAdd=false;renderContent()">✕</button>
     </div>`;
   }
 
-  html+=`<div class="card" style="padding:0;overflow:hidden">
-    <table class="tbl">
-      <thead><tr>
-        <th><input type="checkbox" class="chk" ${allChecked?'checked':''} onchange="toggleSelectAll(this.checked,${JSON.stringify(allFilteredIds)})"/></th>
-        <th>Ref</th><th>Type</th><th>Ledger / Area</th><th>Assigned To</th>
-        <th>Status</th><th>Manager Review</th><th>Due Date</th><th>Remarks</th><th></th>
-      </tr></thead>
-      <tbody>`;
+  // ── Selection bar ──
+  html+=`<div class="sel-bar" id="sel-bar">
+    <span style="font-size:12px;font-weight:700;color:#4338CA">Select:</span>
+    <button class="btn btn-p" style="font-size:11px;padding:4px 12px" onclick="doSelectAll()">☑ Select All (${filteredIds.length})</button>
+    <button class="btn btn-def" style="font-size:11px;padding:4px 12px" onclick="doDeselectAll()">☐ Deselect All</button>
+    <span style="color:#C7D2FE">|</span>
+    <span style="font-size:12px;color:${ltSelected.length>0?'#4338CA':'#94A3B8'};font-weight:600">${ltSelected.length>0?ltSelected.length+' ledger(s) selected':'Nothing selected'}</span>
+    ${ltSelected.length>0?`<button class="btn btn-red" style="padding:5px 14px;font-size:12px" onclick="deleteSelected()">🗑 Delete Selected (${ltSelected.length})</button>`:''}
+    <span style="margin-left:auto;font-size:11px;color:#64748B">${filtered.length} of ${ledgers.length} ledgers shown</span>
+  </div>`;
+
+  // ── Table ──
+  html+=`<div class="card" style="padding:0;overflow-x:auto"><table class="tbl" id="ltbl">
+    <thead><tr>
+      <th style="width:36px;text-align:center"><input type="checkbox" class="chk" id="hdr-chk" ${allSelInView?'checked':''} onchange="hdrChkChange(this.checked)"/></th>
+      <th>Ref</th><th>Type</th><th>Ledger / Area</th>
+      <th>Assigned To</th><th>Status</th><th>Due Date</th><th>Manager Review</th><th>Review Due Date</th>
+      <th>Remarks (auto-syncs to Remarks tab)</th><th style="width:36px"></th>
+    </tr></thead><tbody>`;
 
   filtered.forEach(l=>{
-    const isChk=ltSelected.includes(l.id);
-    html+=`<tr style="background:${isChk?'#F5F3FF':'transparent'}">
-      <td><input type="checkbox" class="chk" ${isChk?'checked':''} onchange="toggleLedgerSel('${l.id}',this.checked)"/></td>
-      <td><span style="font-family:monospace;color:#7C3AED;font-weight:700;font-size:11px">${l.ref}</span></td>
-      <td><span style="padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;background:${ATC[l.auditType]}18;color:${ATC[l.auditType]}">${l.auditType}</span></td>
+    const sel=ltSelected.includes(l.id);
+    const od=l.dueDate&&l.status!=='Done'&&l.status!=='Reviewed'&&new Date(l.dueDate)<new Date();
+    html+=`<tr id="r-${l.id}" style="background:${sel?'#F5F3FF':'transparent'}">
+      <td style="text-align:center"><input type="checkbox" class="chk" data-lid="${l.id}" ${sel?'checked':''} onchange="rowChk('${l.id}',this.checked)"/></td>
+      <td><span style="font-family:monospace;color:#7C3AED;font-weight:700;font-size:11px">${esc(l.ref)}</span></td>
+      <td><span style="padding:2px 5px;border-radius:4px;font-size:10px;font-weight:600;background:${ATC[l.auditType]}18;color:${ATC[l.auditType]};white-space:nowrap">${l.auditType}</span></td>
       <td style="font-weight:500;max-width:140px">${esc(l.name)}</td>
-      <td><select class="sel" style="padding:3px 6px;font-size:11px;width:auto" onchange="updateL('${l.id}','assignedTo',this.value)">
-        <option value="">Unassigned</option>${allMembers.map(m=>`<option ${l.assignedTo===m?'selected':''}>${m}</option>`).join('')}
+      <td><select class="sel" style="padding:3px 6px;font-size:11px" onchange="updateL('${l.id}','assignedTo',this.value)">
+        <option value="">Unassigned</option>${allMembers.map(m=>`<option ${l.assignedTo===m?'selected':''}>${esc(m)}</option>`).join('')}
       </select></td>
-      <td><select class="sel" style="padding:3px 6px;font-size:11px;width:auto;background:${SS[l.status]?.bg};color:${SS[l.status]?.c};font-weight:600" onchange="updateL('${l.id}','status',this.value)">
+      <td><select class="sel" style="padding:3px 6px;font-size:11px;background:${SS[l.status]?.bg};color:${SS[l.status]?.c};font-weight:600" onchange="updateL('${l.id}','status',this.value)">
         ${STATUSES.map(s=>`<option ${l.status===s?'selected':''}>${s}</option>`).join('')}
       </select></td>
-      <td><select class="sel" style="padding:3px 6px;font-size:11px;width:auto;background:${MRS[l.mrStatus||'Pending']?.bg};color:${MRS[l.mrStatus||'Pending']?.c};font-weight:600" onchange="updateL('${l.id}','mrStatus',this.value)">
+      <td>
+        <input type="date" class="inp" style="width:114px;padding:3px 6px;font-size:11px;${od?'border-color:#EF4444;':''}" value="${l.dueDate||''}" onchange="updateL('${l.id}','dueDate',this.value)"/>
+        ${od?'<div style="color:#EF4444;font-size:10px;margin-top:1px">Overdue</div>':''}
+      </td>
+      <td><select class="sel" style="padding:3px 6px;font-size:11px;background:${MRS[l.mrStatus||'Pending']?.bg};color:${MRS[l.mrStatus||'Pending']?.c};font-weight:600" onchange="updateL('${l.id}','mrStatus',this.value)">
         ${MR_STATUSES.map(s=>`<option ${(l.mrStatus||'Pending')===s?'selected':''}>${s}</option>`).join('')}
       </select></td>
-      <td><input type="date" class="inp" style="width:116px;padding:3px 6px;font-size:11px" value="${l.dueDate||''}" onchange="updateL('${l.id}','dueDate',this.value)"/></td>
-      <td><input class="inp" style="font-size:11px;padding:3px 6px;min-width:100px" value="${esc(l.remarks||'')}" placeholder="Note…" onchange="updateL('${l.id}','remarks',this.value)"/></td>
-      <td><button onclick="deleteL('${l.id}')" style="background:none;border:none;cursor:pointer;color:#CBD5E1;font-size:13px">🗑</button></td>
+      <td>
+        <input type="date" class="inp" style="width:114px;padding:3px 6px;font-size:11px" value="${l.mrDueDate||''}" onchange="updateL('${l.id}','mrDueDate',this.value)" title="Review due date"/>
+      </td>
+      <td><input class="inp" style="font-size:11px;padding:3px 6px;min-width:130px" value="${esc(l.remarks||'')}" placeholder="Enter remark…" onchange="updateLRemark('${l.id}',this.value,'${esc(l.name)}','${esc(l.ref)}')"/></td>
+      <td><button onclick="deleteL('${l.id}')" class="btn btn-red" style="padding:3px 8px;font-size:11px">🗑</button></td>
     </tr>`;
   });
 
-  if(!filtered.length) html+=`<tr><td colspan="10" style="text-align:center;color:#94A3B8;padding:24px">No ledgers found. Upload a TB or add manually.</td></tr>`;
-  html+=`</tbody></table></div>
-  <div style="font-size:11px;color:#94A3B8;margin-top:5px">Showing ${filtered.length} of ${ledgers.length} ledgers${ltSelected.length>0?` · ${ltSelected.length} selected`:''}</div>`;
+  if(!filtered.length) html+=`<tr><td colspan="11" style="text-align:center;color:#94A3B8;padding:26px;font-size:13px">No ledgers found. Upload TB, Import Excel, or Add manually.</td></tr>`;
+  html+=`</tbody></table></div>`;
   return html;
 }
 
-function renderTBSelector(){
-  const {ledgers=[]}=getCdata();
-  const existingNames=new Set(ledgers.map(l=>l.name.trim().toLowerCase()));
-  const newAccounts=ltTbAccounts.filter(a=>!existingNames.has(a.trim().toLowerCase()));
-  const dupCount=ltTbAccounts.length-newAccounts.length;
+// ── Checkbox logic (direct DOM, no full re-render) ──────────────────────
+function rowChk(id, checked){
+  if(checked){ if(!ltSelected.includes(id)) ltSelected.push(id); }
+  else ltSelected=ltSelected.filter(s=>s!==id);
+  const row=document.getElementById('r-'+id);
+  if(row) row.style.background=checked?'#F5F3FF':'transparent';
+  refreshSelBar();
+}
+function hdrChkChange(checked){
+  const filteredIds=window._fids||[];
+  if(checked) filteredIds.forEach(id=>{ if(!ltSelected.includes(id)) ltSelected.push(id); });
+  else ltSelected=ltSelected.filter(id=>!filteredIds.includes(id));
+  filteredIds.forEach(id=>{
+    const row=document.getElementById('r-'+id);
+    const chk=document.querySelector(`[data-lid="${id}"]`);
+    if(row) row.style.background=checked?'#F5F3FF':'transparent';
+    if(chk) chk.checked=checked;
+  });
+  refreshSelBar();
+}
+function doSelectAll(ids){
+  const filteredIds=ids||window._fids||[];
+  filteredIds.forEach(id=>{ if(!ltSelected.includes(id)) ltSelected.push(id); });
+  filteredIds.forEach(id=>{
+    const row=document.getElementById('r-'+id);
+    const chk=document.querySelector(`[data-lid="${id}"]`);
+    if(row) row.style.background='#F5F3FF';
+    if(chk) chk.checked=true;
+  });
+  const hc=document.getElementById('hdr-chk'); if(hc) hc.checked=true;
+  refreshSelBar();
+}
+function doDeselectAll(){
+  const prev=[...ltSelected]; ltSelected=[];
+  prev.forEach(id=>{
+    const row=document.getElementById('r-'+id);
+    const chk=document.querySelector(`[data-lid="${id}"]`);
+    if(row) row.style.background='transparent';
+    if(chk) chk.checked=false;
+  });
+  const hc=document.getElementById('hdr-chk'); if(hc) hc.checked=false;
+  refreshSelBar();
+}
+function refreshSelBar(){
+  const bar=document.getElementById('sel-bar'); if(!bar) return;
+  const cnt=ltSelected.length;
+  const fids=window._fids||[];
+  const total=document.querySelectorAll('[data-lid]').length;
+  bar.innerHTML=`
+    <span style="font-size:12px;font-weight:700;color:#4338CA">Select:</span>
+    <button class="btn btn-p" style="font-size:11px;padding:4px 12px" onclick="doSelectAll()">☑ Select All (${fids.length})</button>
+    <button class="btn btn-def" style="font-size:11px;padding:4px 12px" onclick="doDeselectAll()">☐ Deselect All</button>
+    <span style="color:#C7D2FE">|</span>
+    <span style="font-size:12px;color:${cnt>0?'#4338CA':'#94A3B8'};font-weight:600">${cnt>0?cnt+' ledger(s) selected':'Nothing selected'}</span>
+    ${cnt>0?`<button class="btn btn-red" style="padding:5px 14px;font-size:12px" onclick="deleteSelected()">🗑 Delete Selected (${cnt})</button>`:''}
+    <span style="margin-left:auto;font-size:11px;color:#64748B">${total} ledgers shown</span>`;
+}
 
-  let html=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-    <button class="btn btn-def" onclick="ltTbMode=false;ltTbAccounts=[];ltTbSelected=[];renderContent()">← Back</button>
-    <div style="font-weight:700;font-size:14px;color:#0F1C3F">Select Accounts from TB
-      <span style="color:#94A3B8;font-weight:400;font-size:12px">(${ltTbAccounts.length} found${dupCount>0?' · '+dupCount+' already exist (hidden)':''})</span>
-    </div>
-  </div>
-  <div class="card">
-    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:11px">
-      <div><label class="lbl">Assign Audit Type</label>
-        <select class="sel" onchange="ltTbAuditType=this.value">${AUDIT_TYPES.map(a=>`<option ${ltTbAuditType===a?'selected':''}>${a}</option>`).join('')}</select>
-      </div>
-      <div style="margin-left:auto;display:flex;gap:7px">
-        <button class="btn btn-def" onclick="ltTbSelected=[...newAccounts_];renderContent()" id="sel-all-btn">Select All New (${newAccounts.length})</button>
-        <button class="btn btn-def" onclick="ltTbSelected=[];renderContent()">Clear</button>
-        <button class="btn btn-p" onclick="importTB()" ${!ltTbSelected.length?'disabled':''}>Import ${ltTbSelected.length} Ledger${ltTbSelected.length!==1?'s':''}</button>
-      </div>
-    </div>`;
+// ── Ledger CRUD ─────────────────────────────────────────────────────────
+function updateL(id, field, val){
+  const cd=getCdata();
+  allData[activeClientId]={...cd, ledgers:cd.ledgers.map(l=>l.id===id?{...l,[field]:val}:l)};
+  autoSave();
+}
 
-  if(!newAccounts.length){
-    html+=`<div style="text-align:center;padding:24px;color:#94A3B8;font-size:13px">All accounts from this TB already exist as ledgers.</div>`;
+// Remark in ledger tracker → also push to Remarks tab
+function updateLRemark(id, val, ledgerName, ledgerRef){
+  const cd=getCdata();
+  // Update remark field on ledger
+  const updLedgers=cd.ledgers.map(l=>l.id===id?{...l,remarks:val}:l);
+  let remarks=[...(cd.remarks||[])];
+  if(val.trim()){
+    // Check if a ledger-sourced remark exists for this ledger already (today's)
+    const existIdx=remarks.findIndex(r=>r.sourceId===id);
+    const rObj={id:existIdx>=0?remarks[existIdx].id:uid(), sourceId:id, ledgerRef, text:val.trim(),
+      raisedBy:'Ledger Tracker', category:'Documentation', priority:'Medium',
+      date:existIdx>=0?remarks[existIdx].date:todayStr(), resolution:'Not Resolved', response:'',
+      ledgerName};
+    if(existIdx>=0) remarks[existIdx]=rObj;
+    else remarks.push(rObj);
   } else {
-    html+=`<div style="max-height:400px;overflow-y:auto;display:grid;grid-template-columns:repeat(2,1fr);gap:5px">`;
-    newAccounts.forEach(acc=>{
-      const sel=ltTbSelected.includes(acc);
-      html+=`<label style="display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:7px;background:${sel?'#EEF2FF':'#F8F9FC'};border:1px solid ${sel?'#A5B4FC':'#E8ECF4'};cursor:pointer;font-size:12px">
-        <input type="checkbox" class="chk" ${sel?'checked':''} onchange="toggleTBAcc('${esc(acc)}',this.checked)"/>
-        <span style="font-weight:${sel?600:400};color:${sel?'#4338CA':'#374151'}">${esc(acc)}</span>
-      </label>`;
-    });
-    html+=`</div>`;
+    // If remark cleared, remove linked remark
+    remarks=remarks.filter(r=>r.sourceId!==id);
   }
-  html+=`</div>`;
-  // Store newAccounts in a global for select-all button
-  window._tbNewAccounts=newAccounts;
-  // Fix select all button
-  html=html.replace('newAccounts_','window._tbNewAccounts');
-  return html;
+  allData[activeClientId]={...cd, ledgers:updLedgers, remarks};
+  autoSave();
 }
 
+function addLedgerManual(){
+  const name=document.getElementById('add-nm').value.trim();
+  const type=document.getElementById('add-at').value;
+  if(!name)return;
+  const cd=getCdata();
+  if(cd.ledgers.find(l=>l.name.trim().toLowerCase()===name.toLowerCase()&&l.auditType===type)){alert('A ledger with this name already exists for this audit type.');return;}
+  const l={id:uid(),ref:`L${String(cd.ledgers.length+1).padStart(3,'0')}`,auditType:type,name,assignedTo:'',status:'Not Started',mrStatus:'Pending',dueDate:'',remarks:''};
+  allData[activeClientId]={...cd,ledgers:[...cd.ledgers,l]};
+  autoSave(); ltShowAdd=false; renderContent();
+}
+function deleteL(id){
+  if(!confirm('Delete this ledger?'))return;
+  const cd=getCdata();
+  allData[activeClientId]={...cd,ledgers:cd.ledgers.filter(l=>l.id!==id),remarks:(cd.remarks||[]).filter(r=>r.sourceId!==id)};
+  ltSelected=ltSelected.filter(s=>s!==id);
+  autoSave(); renderContent();
+}
+function deleteSelected(){
+  if(!ltSelected.length)return;
+  if(!confirm(`Permanently delete ${ltSelected.length} selected ledger(s)?`))return;
+  const cd=getCdata();
+  const ids=new Set(ltSelected);
+  allData[activeClientId]={...cd,ledgers:cd.ledgers.filter(l=>!ids.has(l.id)),remarks:(cd.remarks||[]).filter(r=>!ids.has(r.sourceId))};
+  ltSelected=[];
+  autoSave(); renderContent();
+}
+
+// ── TB Upload ────────────────────────────────────────────────────────────
 function handleTBFile(input){
   const file=input.files[0]; if(!file||!window.XLSX)return;
   const reader=new FileReader();
@@ -495,10 +913,50 @@ function handleTBFile(input){
       ltTbAccounts=accounts; ltTbSelected=[]; ltTbMode=true; renderContent();
     }catch(e){alert('Could not parse file.');}
   };
-  reader.readAsBinaryString(file);
-  input.value='';
+  reader.readAsBinaryString(file); input.value='';
 }
-function toggleTBAcc(acc,checked){
+
+function renderTBSelector(){
+  const {ledgers=[]}=getCdata();
+  const existingNames=new Set(ledgers.map(l=>l.name.trim().toLowerCase()));
+  const newAccs=ltTbAccounts.filter(a=>!existingNames.has(a.trim().toLowerCase()));
+  const dupCnt=ltTbAccounts.length-newAccs.length;
+  let html=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+    <button class="btn btn-def" onclick="ltTbMode=false;ltTbAccounts=[];ltTbSelected=[];renderContent()">← Back</button>
+    <div style="font-weight:700;font-size:14px;color:#0F1C3F">Select Accounts from TB
+      <span style="color:#94A3B8;font-weight:400;font-size:12px"> ${ltTbAccounts.length} found${dupCnt>0?' · '+dupCnt+' duplicates hidden':''}</span>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:11px">
+      <div><label class="lbl">Assign Audit Type</label>
+        <select class="sel" onchange="ltTbAuditType=this.value">${AUDIT_TYPES.map(a=>`<option ${ltTbAuditType===a?'selected':''}>${a}</option>`).join('')}</select>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:7px;align-items:center">
+        <span style="font-size:12px;color:#64748B">${ltTbSelected.length} selected</span>
+        <button class="btn btn-p" onclick="ltTbSelected=[...window._tbNew||[]];renderContent()">☑ Select All (${newAccs.length})</button>
+        <button class="btn btn-def" onclick="ltTbSelected=[];renderContent()">☐ Clear</button>
+        <button class="btn btn-green" onclick="importTB()" ${!ltTbSelected.length?'disabled':''}>Import ${ltTbSelected.length} Ledger${ltTbSelected.length!==1?'s':''}</button>
+      </div>
+    </div>`;
+  if(!newAccs.length){
+    html+=`<div style="text-align:center;padding:24px;color:#94A3B8;font-size:13px">All accounts already exist as ledgers.</div>`;
+  } else {
+    html+=`<div style="max-height:400px;overflow-y:auto;display:grid;grid-template-columns:repeat(2,1fr);gap:5px">`;
+    newAccs.forEach(acc=>{
+      const s=ltTbSelected.includes(acc);
+      html+=`<label style="display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:7px;background:${s?'#EEF2FF':'#F8F9FC'};border:1px solid ${s?'#A5B4FC':'#E8ECF4'};cursor:pointer;font-size:12px">
+        <input type="checkbox" class="chk" ${s?'checked':''} onchange="tbChk('${esc(acc)}',this.checked)"/>
+        <span style="font-weight:${s?600:400};color:${s?'#4338CA':'#374151'}">${esc(acc)}</span>
+      </label>`;
+    });
+    html+=`</div>`;
+  }
+  html+=`</div>`;
+  window._tbNew=newAccs;
+  return html;
+}
+function tbChk(acc,checked){
   if(checked){if(!ltTbSelected.includes(acc))ltTbSelected.push(acc);}
   else ltTbSelected=ltTbSelected.filter(x=>x!==acc);
   renderContent();
@@ -508,70 +966,113 @@ function importTB(){
   const existingNames=new Set(ledgers.map(l=>l.name.trim().toLowerCase()));
   const newOnes=ltTbSelected.filter(n=>!existingNames.has(n.trim().toLowerCase()));
   const skipped=ltTbSelected.length-newOnes.length;
-  if(!newOnes.length){alert('All selected accounts already exist. No duplicates added.');ltTbMode=false;ltTbAccounts=[];ltTbSelected=[];renderContent();return;}
+  if(!newOnes.length){alert('All selected accounts already exist. Nothing added.');ltTbMode=false;ltTbAccounts=[];ltTbSelected=[];renderContent();return;}
   const toAdd=newOnes.map((name,i)=>({id:uid(),ref:`L${String(ledgers.length+i+1).padStart(3,'0')}`,auditType:ltTbAuditType,name,assignedTo:'',status:'Not Started',mrStatus:'Pending',dueDate:'',remarks:''}));
   const cd=getCdata();
   allData[activeClientId]={...cd,ledgers:[...ledgers,...toAdd]};
-  save();ltTbMode=false;ltTbAccounts=[];ltTbSelected=[];
-  if(skipped>0)alert(`✅ ${newOnes.length} ledger(s) added. ${skipped} duplicate(s) were skipped.`);
+  autoSave(); ltTbMode=false; ltTbAccounts=[]; ltTbSelected=[];
+  if(skipped>0)alert(`✅ ${newOnes.length} ledger(s) added. ${skipped} duplicate(s) skipped.`);
   renderContent();
-}
-function addLedgerManual(){
-  const name=document.getElementById('add-nm').value.trim();
-  const type=document.getElementById('add-at').value;
-  if(!name)return;
-  const cd=getCdata();
-  const dup=cd.ledgers.find(l=>l.name.trim().toLowerCase()===name.toLowerCase()&&l.auditType===type);
-  if(dup){alert('A ledger with this name already exists for this audit type.');return;}
-  const l={id:uid(),ref:`L${String(cd.ledgers.length+1).padStart(3,'0')}`,auditType:type,name,assignedTo:'',status:'Not Started',mrStatus:'Pending',dueDate:'',remarks:''};
-  allData[activeClientId]={...cd,ledgers:[...cd.ledgers,l]};
-  save();ltShowAdd=false;renderContent();
-}
-function updateL(id,field,val){
-  const cd=getCdata();
-  allData[activeClientId]={...cd,ledgers:cd.ledgers.map(l=>l.id===id?{...l,[field]:val}:l)};
-  save();
-}
-function deleteL(id){
-  if(!confirm('Delete this ledger?'))return;
-  const cd=getCdata();
-  allData[activeClientId]={...cd,ledgers:cd.ledgers.filter(l=>l.id!==id)};
-  ltSelected=ltSelected.filter(s=>s!==id);
-  save();renderContent();
-}
-function toggleLedgerSel(id,checked){
-  if(checked){if(!ltSelected.includes(id))ltSelected.push(id);}
-  else ltSelected=ltSelected.filter(s=>s!==id);
-  renderContent();
-}
-function toggleSelectAll(checked,ids){
-  if(checked) ids.forEach(id=>{if(!ltSelected.includes(id))ltSelected.push(id);});
-  else ltSelected=ltSelected.filter(s=>!ids.includes(s));
-  renderContent();
-}
-function deleteSelected(){
-  if(!ltSelected.length)return;
-  if(!confirm(`Delete ${ltSelected.length} selected ledger(s)?`))return;
-  const cd=getCdata();
-  allData[activeClientId]={...cd,ledgers:cd.ledgers.filter(l=>!ltSelected.includes(l.id))};
-  ltSelected=[];
-  save();renderContent();
 }
 
-// ═══════════════════════════════════════════════
+// ── Import Ledgers from Excel (with template) ────────────────────────────
+function downloadTemplate(){
+  if(!window.XLSX){alert('Excel library loading… please try again.');return;}
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet([
+    ['Ref','Audit Type','Ledger / Area','Assigned To','Status','Manager Review','Due Date','Review Due Date','Remarks'],
+    ['L001','Statutory Audit','Advance Tax','','Not Started','Pending','','',''],
+    ['L002','Tax Audit (3CD)','TDS Payable','','WIP','Pending','2025-03-31','',''],
+    ['L003','GST Audit','GSTR-3B Reco','','Not Started','Pending','','',''],
+  ]);
+  ws['!cols']=[{wch:7},{wch:22},{wch:30},{wch:18},{wch:14},{wch:16},{wch:12},{wch:30}];
+  // Add data validation note
+  XLSX.utils.book_append_sheet(wb,ws,'Ledgers');
+  const wsNote=XLSX.utils.aoa_to_sheet([
+    ['INSTRUCTIONS FOR IMPORT TEMPLATE'],[''],
+    ['Column','Allowed Values'],
+    ['Ref','Any text e.g. L001, L002 (optional, will be auto-generated)'],
+    ['Audit Type','Statutory Audit | Tax Audit (3CD) | GST Audit | TP Audit'],
+    ['Ledger / Area','Any text – name of the ledger or audit area (required)'],
+    ['Assigned To','Name of team member (must match team members in the tool)'],
+    ['Status','Not Started | WIP | Done | Reviewed'],
+    ['Manager Review','Pending | Approved | Needs Revision'],
+    ['Due Date','Format: YYYY-MM-DD e.g. 2025-03-31 (optional)'],
+    ['Review Due Date','Format: YYYY-MM-DD – manager review deadline (optional)'],
+    ['Remarks','Any text (optional – will appear in Remarks tab)'],
+  ]);
+  wsNote['!cols']=[{wch:16},{wch:60}];
+  XLSX.utils.book_append_sheet(wb,wsNote,'Instructions');
+  XLSX.writeFile(wb,'ATG_Ledger_Import_Template.xlsx');
+}
+
+function importLedgersXL(input){
+  const file=input.files[0]; if(!file||!window.XLSX)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const wb=XLSX.read(ev.target.result,{type:'binary'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(!rows.length){alert('No data rows found in the file.');return;}
+      const cd=getCdata();
+      const existingNames=new Set(cd.ledgers.map(l=>l.name.trim().toLowerCase()));
+      const added=[]; const skipped=[];
+      rows.forEach((row,i)=>{
+        // Flexible header matching
+        const name=(row['Ledger / Area']||row['Ledger/Area']||row['Ledger']||row['Account']||row['Name']||'').toString().trim();
+        if(!name){skipped.push(`Row ${i+2}: empty name`);return;}
+        if(existingNames.has(name.toLowerCase())){skipped.push(name+' (duplicate)');return;}
+        const auditType=(row['Audit Type']||row['AuditType']||'Statutory Audit').toString().trim();
+        const validAT=AUDIT_TYPES.includes(auditType)?auditType:'Statutory Audit';
+        const status=(row['Status']||'Not Started').toString().trim();
+        const validStatus=STATUSES.includes(status)?status:'Not Started';
+        const mrStatus=(row['Manager Review']||row['Manager_Review']||'Pending').toString().trim();
+        const validMR=MR_STATUSES.includes(mrStatus)?mrStatus:'Pending';
+        const dueDate=(row['Due Date']||row['DueDate']||'').toString().trim();
+        const remarks=(row['Remarks']||'').toString().trim();
+        const assignedTo=(row['Assigned To']||row['AssignedTo']||'').toString().trim();
+        const l={id:uid(),ref:`L${String(cd.ledgers.length+added.length+1).padStart(3,'0')}`,auditType:validAT,name,assignedTo,status:validStatus,mrStatus:validMR,dueDate,remarks};
+        added.push(l);
+        existingNames.add(name.toLowerCase());
+      });
+      if(!added.length){alert(`No new ledgers imported.\nSkipped: ${skipped.join(', ')}`);input.value='';return;}
+      allData[activeClientId]={...cd,ledgers:[...cd.ledgers,...added]};
+      // Push non-empty remarks to remarks tab
+      added.filter(l=>l.remarks).forEach(l=>pushLedgerRemark(l.id,l.remarks,l.name,l.ref));
+      autoSave(); renderContent();
+      alert(`✅ ${added.length} ledger(s) imported.${skipped.length?'\nSkipped: '+skipped.length+' (duplicate or empty)':''}`);
+    }catch(e){alert('Import failed: '+e.message);}
+  };
+  reader.readAsBinaryString(file); input.value='';
+}
+
+function pushLedgerRemark(sourceId, text, ledgerName, ledgerRef){
+  const cd=getCdata();
+  const remarks=[...(cd.remarks||[])];
+  if(!remarks.find(r=>r.sourceId===sourceId)){
+    remarks.push({id:uid(),sourceId,ledgerRef,ledgerName,text,raisedBy:'Ledger Tracker',category:'Documentation',priority:'Medium',date:todayStr(),resolution:'Not Resolved',response:''});
+    allData[activeClientId]={...cd,remarks};
+  }
+}
+
+// ══════════════════════════════════════════════════════
 // REMARKS TAB
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
 function renderRemarks(){
   const {remarks=[],ledgers=[]}=getCdata();
   const cl=getClient();
   const allMembers=[cl.manager,...(cl.team||[])].filter(Boolean);
   const filtered=rmFilter==='All'?remarks:rmFilter==='Resolved'?remarks.filter(r=>r.resolution==='Resolved'):remarks.filter(r=>r.resolution==='Not Resolved');
-
   const totalResolved=remarks.filter(r=>r.resolution==='Resolved').length;
-  const totalPending=remarks.filter(r=>r.resolution==='Not Resolved').length;
+  const totalPending =remarks.filter(r=>r.resolution==='Not Resolved').length;
+
+  // Separate ledger-sourced vs manually added remarks
+  const fromLedger=filtered.filter(r=>r.sourceId);
+  const manual=filtered.filter(r=>!r.sourceId);
 
   let html=`<div class="card">
-    <div style="font-weight:700;font-size:13px;color:#0F1C3F;margin-bottom:10px">Add New Remark / Audit Observation</div>
+    <div style="font-weight:700;font-size:13px;color:#0F1C3F;margin-bottom:10px">➕ Add New Remark / Observation Manually</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px">
       <div><label class="lbl">Ledger / Area</label>
         <select class="sel" id="rm-ledger"><option value="">General</option>${ledgers.map(l=>`<option value="${l.ref}">${l.ref} – ${esc(l.name)}</option>`).join('')}</select>
@@ -581,78 +1082,84 @@ function renderRemarks(){
       </div>
     </div>
     <div style="margin-bottom:9px"><label class="lbl">Remark / Observation</label>
-      <textarea class="inp" id="rm-text" style="height:60px" placeholder="Enter audit remark, finding or observation…"></textarea>
+      <textarea class="inp" id="rm-text" style="height:58px" placeholder="Enter audit remark, finding or observation…"></textarea>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:9px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px">
       <div><label class="lbl">Category</label>
-        <select class="sel" id="rm-cat">
-          <option>Financial Reporting</option><option>Tax Compliance</option><option>GST Compliance</option>
-          <option>Internal Control</option><option>Documentation</option><option>Disclosure</option><option>Other</option>
-        </select>
+        <select class="sel" id="rm-cat"><option>Financial Reporting</option><option>Tax Compliance</option><option>GST Compliance</option><option>Internal Control</option><option>Documentation</option><option>Disclosure</option><option>Other</option></select>
       </div>
       <div><label class="lbl">Priority</label>
         <select class="sel" id="rm-priority"><option>High</option><option>Medium</option><option>Low</option></select>
       </div>
-      <div style="display:flex;align-items:flex-end">
-        <button class="btn btn-p" style="width:100%" onclick="addRemark()">Add Remark</button>
-      </div>
+      <div style="display:flex;align-items:flex-end"><button class="btn btn-p" style="width:100%" onclick="addRemark()">+ Add Remark</button></div>
     </div>
   </div>
-
-  <!-- Summary row -->
   <div style="display:flex;gap:10px;margin-bottom:11px">
     <div style="flex:1;background:#DCFCE7;border-radius:9px;padding:10px 14px;border:1px solid #BBF7D0">
-      <div style="font-size:18px;font-weight:800;color:#166534">${totalResolved}</div>
+      <div style="font-size:20px;font-weight:800;color:#166534">${totalResolved}</div>
       <div style="font-size:11px;color:#166534;font-weight:500">✅ Resolved</div>
     </div>
     <div style="flex:1;background:#FEE2E2;border-radius:9px;padding:10px 14px;border:1px solid #FECACA">
-      <div style="font-size:18px;font-weight:800;color:#991B1B">${totalPending}</div>
+      <div style="font-size:20px;font-weight:800;color:#991B1B">${totalPending}</div>
       <div style="font-size:11px;color:#991B1B;font-weight:500">⏳ Not Resolved</div>
     </div>
     <div style="flex:1;background:#F8F9FC;border-radius:9px;padding:10px 14px;border:1px solid #E8ECF4">
-      <div style="font-size:18px;font-weight:800;color:#0F1C3F">${remarks.length}</div>
-      <div style="font-size:11px;color:#64748B;font-weight:500">Total Remarks</div>
+      <div style="font-size:20px;font-weight:800;color:#0F1C3F">${remarks.length}</div>
+      <div style="font-size:11px;color:#64748B;font-weight:500">Total</div>
     </div>
   </div>
-
-  <!-- Filter pills -->
   <div style="display:flex;gap:6px;margin-bottom:11px">
-    ${['All','Not Resolved','Resolved'].map(f=>`<button class="pill ${rmFilter===f?'active':''}" onclick="rmFilter='${f}';renderContent()">${f} (${f==='All'?remarks.length:remarks.filter(r=>r.resolution===(f==='Not Resolved'?'Not Resolved':'Resolved')).length})</button>`).join('')}
+    ${['All','Not Resolved','Resolved'].map(f=>`<button class="pill ${rmFilter===f?'active':''}" onclick="rmFilter='${f}';renderContent()">${f} (${f==='All'?remarks.length:remarks.filter(r=>r.resolution===(f)).length})</button>`).join('')}
   </div>`;
 
   if(!filtered.length) html+=`<div style="text-align:center;color:#94A3B8;padding:28px;font-size:13px">No remarks found.</div>`;
 
   const PCOLOR={'High':{bg:'#FEE2E2',c:'#991B1B'},'Medium':{bg:'#FEF9C3',c:'#854D0E'},'Low':{bg:'#DCFCE7',c:'#166534'}};
-  const CATCOLOR={'Financial Reporting':'#7C3AED','Tax Compliance':'#0891B2','GST Compliance':'#059669','Internal Control':'#D97706','Documentation':'#64748B','Disclosure':'#EF4444','Other':'#94A3B8'};
+  const CATC={'Financial Reporting':'#7C3AED','Tax Compliance':'#0891B2','GST Compliance':'#059669','Internal Control':'#D97706','Documentation':'#64748B','Disclosure':'#EF4444','Other':'#94A3B8'};
 
-  [...filtered].reverse().forEach(r=>{
-    const isResolved=r.resolution==='Resolved';
-    html+=`<div style="background:#fff;border-radius:10px;border:1px solid ${isResolved?'#BBF7D0':'#FECACA'};margin-bottom:9px;overflow:hidden">
-      <div style="padding:10px 13px;background:${isResolved?'#F0FDF4':'#FFF5F5'};display:flex;align-items:flex-start;gap:8px">
+  // Show ledger-sourced remarks with a distinct header
+  if(fromLedger.length>0){
+    html+=`<div style="font-size:11px;font-weight:700;color:#7C3AED;margin-bottom:7px;letter-spacing:.4px;display:flex;align-items:center;gap:6px">
+      <span style="background:#EEF2FF;padding:2px 8px;border-radius:20px">📁 FROM LEDGER TRACKER (${fromLedger.length})</span>
+    </div>`;
+    html+=renderRemarkCards([...fromLedger].reverse(), PCOLOR, CATC, true);
+  }
+  if(manual.length>0){
+    if(fromLedger.length>0) html+=`<div style="font-size:11px;font-weight:700;color:#64748B;margin:10px 0 7px;letter-spacing:.4px"><span style="background:#F1F5F9;padding:2px 8px;border-radius:20px">✍️ MANUALLY ADDED (${manual.length})</span></div>`;
+    html+=renderRemarkCards([...manual].reverse(), PCOLOR, CATC, false);
+  }
+  return html;
+}
+
+function renderRemarkCards(list, PCOLOR, CATC, isLedgerSource){
+  let html='';
+  list.forEach(r=>{
+    const res=r.resolution==='Resolved';
+    html+=`<div style="background:#fff;border-radius:10px;border:1px solid ${res?'#BBF7D0':'#FECACA'};margin-bottom:9px;overflow:hidden">
+      <div style="padding:10px 13px;background:${res?'#F0FDF4':'#FFF5F5'};display:flex;align-items:flex-start;gap:8px">
         <div style="flex:1">
           <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:4px">
-            ${r.ledgerRef?`<span style="font-family:monospace;font-size:11px;font-weight:700;color:#7C3AED;background:#F5F3FF;padding:1px 5px;border-radius:4px">${r.ledgerRef}</span>`:''}
-            <span style="font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;background:${(CATCOLOR[r.category]||'#94A3B8')}18;color:${CATCOLOR[r.category]||'#94A3B8'}">${r.category}</span>
-            <span class="badge" style="background:${PCOLOR[r.priority]?.bg};color:${PCOLOR[r.priority]?.c}">${r.priority}</span>
-            <span style="font-size:11px;color:#64748B">📝 ${esc(r.raisedBy)} · ${r.date}</span>
+            ${r.ledgerRef?`<span style="font-family:monospace;font-size:11px;font-weight:700;color:#7C3AED;background:#F5F3FF;padding:1px 5px;border-radius:4px">${esc(r.ledgerRef)}</span>`:''}
+            ${r.ledgerName?`<span style="font-size:11px;font-weight:600;color:#374151">${esc(r.ledgerName)}</span>`:''}
+            <span style="font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;background:${(CATC[r.category]||'#94A3B8')}22;color:${CATC[r.category]||'#94A3B8'}">${esc(r.category)}</span>
+            <span class="badge" style="background:${PCOLOR[r.priority]?.bg||'#F1F5F9'};color:${PCOLOR[r.priority]?.c||'#64748B'}">${esc(r.priority)}</span>
+            <span style="font-size:11px;color:#64748B">📝 ${esc(r.raisedBy)} · ${esc(r.date)}</span>
           </div>
           <div style="font-weight:600;font-size:13px;color:#1E293B;margin-bottom:${r.response?'6px':'0'}">${esc(r.text)}</div>
           ${r.response?`<div style="font-size:12px;color:#059669;background:#F0FDF4;padding:5px 9px;border-radius:6px;border-left:3px solid #22C55E">💬 Response: ${esc(r.response)}</div>`:''}
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
-          <span style="padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:${isResolved?'#DCFCE7':'#FEE2E2'};color:${isResolved?'#166534':'#991B1B'}">${r.resolution}</span>
+          <span style="padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:${res?'#DCFCE7':'#FEE2E2'};color:${res?'#166534':'#991B1B'};white-space:nowrap">${res?'✅ Resolved':'⏳ Not Resolved'}</span>
           <div style="display:flex;gap:4px">
-            <button class="btn btn-sm" style="background:${isResolved?'#FEE2E2':'#DCFCE7'};color:${isResolved?'#991B1B':'#166534'}" onclick="toggleResolution('${r.id}')">
-              ${isResolved?'↩ Reopen':'✓ Mark Resolved'}
-            </button>
-            <button onclick="deleteRemark('${r.id}')" style="background:none;border:none;cursor:pointer;color:#CBD5E1;font-size:12px">✕</button>
+            <button class="btn btn-sm" style="background:${res?'#FEE2E2':'#DCFCE7'};color:${res?'#991B1B':'#166534'}" onclick="toggleResolution('${r.id}')">${res?'↩ Reopen':'✓ Resolve'}</button>
+            <button class="btn btn-red" style="padding:3px 8px;font-size:11px" onclick="deleteRemark('${r.id}')">🗑</button>
           </div>
         </div>
       </div>`;
-    if(!isResolved){
+    if(!res){
       html+=`<div style="padding:8px 13px;border-top:1px solid #F1F5F9;display:flex;gap:7px;align-items:flex-end">
         <textarea class="inp" id="rr-${r.id}" style="height:38px;flex:1" placeholder="Add response / action taken…">${esc(r.response||'')}</textarea>
-        <button class="btn btn-p" onclick="saveRemarkResponse('${r.id}')">Save</button>
+        <button class="btn btn-green" onclick="saveRemarkResp('${r.id}')">💾 Save</button>
       </div>`;
     }
     html+=`</div>`;
@@ -663,68 +1170,53 @@ function renderRemarks(){
 function addRemark(){
   const text=document.getElementById('rm-text').value.trim(); if(!text)return;
   const cd=getCdata();
-  const remarks=cd.remarks||[];
   const r={id:uid(),ledgerRef:document.getElementById('rm-ledger').value,text,raisedBy:document.getElementById('rm-by').value,category:document.getElementById('rm-cat').value,priority:document.getElementById('rm-priority').value,date:todayStr(),resolution:'Not Resolved',response:''};
-  allData[activeClientId]={...cd,remarks:[...remarks,r]};
-  save();renderContent();
+  allData[activeClientId]={...cd,remarks:[...(cd.remarks||[]),r]};
+  autoSave(); renderContent();
 }
 function toggleResolution(id){
   const cd=getCdata();
   allData[activeClientId]={...cd,remarks:(cd.remarks||[]).map(r=>r.id===id?{...r,resolution:r.resolution==='Resolved'?'Not Resolved':'Resolved'}:r)};
-  save();renderContent();
+  autoSave(); renderContent();
 }
-function saveRemarkResponse(id){
+function saveRemarkResp(id){
   const val=(document.getElementById('rr-'+id).value||'').trim();
   const cd=getCdata();
   allData[activeClientId]={...cd,remarks:(cd.remarks||[]).map(r=>r.id===id?{...r,response:val}:r)};
-  save();renderContent();
+  autoSave(); renderContent();
 }
 function deleteRemark(id){
+  if(!confirm('Delete this remark?'))return;
   const cd=getCdata();
-  allData[activeClientId]={...cd,remarks:(cd.remarks||[]).filter(r=>r.id!==id)};
-  save();renderContent();
+  // If it came from ledger tracker, also clear the remark on the ledger
+  const rmk=(cd.remarks||[]).find(r=>r.id===id);
+  let ledgers=cd.ledgers;
+  if(rmk&&rmk.sourceId) ledgers=cd.ledgers.map(l=>l.id===rmk.sourceId?{...l,remarks:''}:l);
+  allData[activeClientId]={...cd,remarks:(cd.remarks||[]).filter(r=>r.id!==id),ledgers};
+  autoSave(); renderContent();
 }
 
-// ═══════════════════════════════════════════════
-// EXPORT / RESTORE (EXCEL)
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// EXPORT / RESTORE (Excel)
+// ══════════════════════════════════════════════════════
 function exportXLSX(){
   const cl=getClient(); if(!cl||!window.XLSX)return;
   const cd=getCdata();
   const wb=XLSX.utils.book_new();
-
-  // Sheet 1: Client Info
-  const info=[
-    ['ATG Audit Tracker – Client Export'],
-    [],
-    ['Company Name', cl.name],
-    ['Financial Year', cl.fy],
-    ['Manager', cl.manager||''],
-    ['Team Members', (cl.team||[]).join(', ')],
-    ['Exported On', new Date().toLocaleString('en-IN')],
-  ];
-  const wsI=XLSX.utils.aoa_to_sheet(info); wsI['!cols']=[{wch:20},{wch:40}];
+  const wsI=XLSX.utils.aoa_to_sheet([['ATG Audit Tracker – Client Backup'],[''],['Company Name',cl.name],['Financial Year',cl.fy],['Manager',cl.manager||''],['Team',(cl.team||[]).join(', ')],['Exported On',new Date().toLocaleString('en-IN')]]);
+  wsI['!cols']=[{wch:18},{wch:42}];
   XLSX.utils.book_append_sheet(wb,wsI,'Client Info');
-
-  // Sheet 2: Ledgers
-  const lRows=[['Ref','Audit Type','Ledger / Area','Assigned To','Status','Manager Review','Due Date','Remarks']];
-  (cd.ledgers||[]).forEach(l=>lRows.push([l.ref,l.auditType,l.name,l.assignedTo||'',l.status,l.mrStatus||'Pending',l.dueDate||'',l.remarks||'']));
-  const wsL=XLSX.utils.aoa_to_sheet(lRows); wsL['!cols']=[{wch:8},{wch:20},{wch:30},{wch:18},{wch:14},{wch:16},{wch:12},{wch:30}];
+  const lRows=[['Ref','Audit Type','Ledger / Area','Assigned To','Status','Due Date','Manager Review','Review Due Date','Remarks']];
+  (cd.ledgers||[]).forEach(l=>lRows.push([l.ref,l.auditType,l.name,l.assignedTo||'',l.status,l.dueDate||'',l.mrStatus||'Pending',l.mrDueDate||'',l.remarks||'']));
+  const wsL=XLSX.utils.aoa_to_sheet(lRows); wsL['!cols']=[{wch:7},{wch:20},{wch:30},{wch:18},{wch:13},{wch:12},{wch:16},{wch:12},{wch:30}];
   XLSX.utils.book_append_sheet(wb,wsL,'Ledgers');
-
-  // Sheet 3: Remarks
-  const rRows=[['Date','Ledger Ref','Remark','Raised By','Category','Priority','Resolution','Response']];
-  (cd.remarks||[]).forEach(r=>rRows.push([r.date,r.ledgerRef||'',r.text,r.raisedBy,r.category,r.priority,r.resolution,r.response||'']));
-  const wsR=XLSX.utils.aoa_to_sheet(rRows); wsR['!cols']=[{wch:12},{wch:10},{wch:45},{wch:16},{wch:18},{wch:8},{wch:14},{wch:40}];
+  const rRows=[['Date','Ledger Ref','Ledger Name','Remark','Raised By','Category','Priority','Resolution','Response']];
+  (cd.remarks||[]).forEach(r=>rRows.push([r.date,r.ledgerRef||'',r.ledgerName||'',r.text,r.raisedBy,r.category,r.priority,r.resolution,r.response||'']));
+  const wsR=XLSX.utils.aoa_to_sheet(rRows); wsR['!cols']=[{wch:12},{wch:10},{wch:22},{wch:40},{wch:16},{wch:18},{wch:8},{wch:14},{wch:40}];
   XLSX.utils.book_append_sheet(wb,wsR,'Remarks');
-
-  // Hidden meta sheet for restore
-  const meta=[[JSON.stringify({client:cl,data:cd})]];
-  const wsM=XLSX.utils.aoa_to_sheet(meta);
+  const wsM=XLSX.utils.aoa_to_sheet([[JSON.stringify({client:cl,data:cd})]]);
   XLSX.utils.book_append_sheet(wb,wsM,'_meta');
-
-  const fname=`ATG_${cl.name.replace(/\s+/g,'_')}_FY${cl.fy.replace(/-/g,'')}_${new Date().toISOString().slice(0,10)}.xlsx`;
-  XLSX.writeFile(wb,fname);
+  XLSX.writeFile(wb,`ATG_${cl.name.replace(/\s+/g,'_')}_FY${cl.fy.replace(/-/g,'')}_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
 function restoreXLSX(input){
@@ -733,35 +1225,25 @@ function restoreXLSX(input){
   reader.onload=function(ev){
     try{
       const wb=XLSX.read(ev.target.result,{type:'binary'});
-      const metaSheet=wb.Sheets['_meta'];
-      if(!metaSheet)throw new Error('Invalid backup file – no meta sheet found.');
-      const rows=XLSX.utils.sheet_to_json(metaSheet,{header:1});
-      const payload=JSON.parse(rows[0][0]);
-      const cl=payload.client, cd=payload.data;
-      if(!cl||!cd)throw new Error('Invalid data in backup.');
-      const existing=clients.find(c=>c.id===cl.id);
-      if(existing){
-        if(!confirm(`Client "${cl.name}" already exists. Overwrite with backup?`))return;
+      const ms=wb.Sheets['_meta'];
+      if(!ms)throw new Error('No _meta sheet found. Is this an ATG backup file?');
+      const rows=XLSX.utils.sheet_to_json(ms,{header:1});
+      const {client:cl,data:cd}=JSON.parse(rows[0][0]);
+      if(!cl||!cd)throw new Error('Invalid backup data.');
+      if(clients.find(c=>c.id===cl.id)){
+        if(!confirm(`"${cl.name}" already exists. Overwrite with this backup?`))return;
         clients=clients.map(c=>c.id===cl.id?cl:c);
-      } else {
-        clients.push(cl);
-      }
+      } else { clients.push(cl); }
       allData[cl.id]=cd;
-      save();
-      activeClientId=cl.id; activeTab='dashboard';
-      document.getElementById('welcome-screen').style.display='none';
+      autoSave(); activeClientId=cl.id; activeTab='dashboard';
+      document.getElementById('ws').style.display='none';
       document.getElementById('app').style.display='flex';
-      render();
-      alert(`✅ "${cl.name}" restored successfully!`);
+      render(); alert(`✅ "${cl.name}" restored successfully!`);
     }catch(e){alert('Restore failed: '+e.message);}
   };
-  reader.readAsBinaryString(file);
-  input.value='';
+  reader.readAsBinaryString(file); input.value='';
 }
 
-// ═══════════════════════════════════════════════
-// UTILS
-// ═══════════════════════════════════════════════
 function bindEvents(){}
 </script>
 </body>
